@@ -1,0 +1,700 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;color:#1a1a1a;background:#fff}
+#app{max-width:700px;margin:0 auto;padding:1.5rem 1rem}
+.progress-bar{height:6px;background:#e5e5e5;border-radius:3px;margin-bottom:1.5rem;overflow:hidden}
+.progress-fill{height:100%;background:#1D9E75;border-radius:3px;transition:width 0.4s}
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem}
+.q-label{font-size:13px;color:#666}
+.category-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:#EEF6FF;color:#1a5fa5}
+.q-text{font-size:16px;font-weight:500;line-height:1.5;margin-bottom:1rem;white-space:pre-line}
+.visual-box{border:1px solid #ddd;border-radius:12px;background:#f8f8f8;padding:1.25rem 1rem;margin-bottom:1rem;display:flex;justify-content:center;align-items:center;width:100%;overflow:visible}
+.visual-box svg{max-width:100%;height:auto;display:block;overflow:visible}
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #ddd;border-radius:10px;cursor:pointer;font-size:15px;background:#fff;transition:background 0.15s,border-color 0.15s,transform 0.1s;text-align:left;width:100%}
+.opt:hover{background:#f5f5f5;border-color:#bbb}
+.opt.selected{border:2px solid #185FA5;background:#E6F1FB;transform:scale(1.01)}
+.opt.selected .opt-letter{background:#185FA5;color:white;border-color:#185FA5}
+.opt-letter{width:28px;height:28px;border-radius:50%;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;transition:background 0.15s,color 0.15s}
+.nav-row{display:flex;justify-content:flex-end}
+button.primary{padding:10px 24px;border-radius:8px;border:1px solid #ccc;background:#fff;color:#1a1a1a;font-size:14px;cursor:pointer;font-family:inherit}
+button.primary:hover{background:#f5f5f5}
+button.primary:disabled{opacity:0.4;cursor:not-allowed}
+.results{text-align:center;padding:1rem 0}
+.results h2{font-size:22px;font-weight:500;margin-bottom:0.25rem}
+.score-big{font-size:48px;font-weight:500;color:#1D9E75;margin:0.5rem 0}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:1.5rem 0;text-align:left}
+.cat-card{padding:14px;border:1px solid #ddd;border-radius:12px;background:#fff}
+.cat-name{font-size:12px;color:#666;margin-bottom:6px}
+.cat-score{font-size:22px;font-weight:500;margin-bottom:6px}
+.cat-bar-bg{height:4px;background:#e5e5e5;border-radius:2px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:2px;transition:width 0.6s}
+.feedback{font-size:13px;color:#666;line-height:1.6;margin-top:1.5rem;text-align:left;padding:14px;border:1px solid #ddd;border-radius:10px;background:#f8f8f8}
+@media(max-width:480px){.cat-grid{grid-template-columns:1fr}}
+</style>
+
+<div id="app">
+  <div id="screen-intro">
+    <div style="text-align:center;padding:2rem 0">
+      <div style="font-size:13px;font-weight:500;color:#666;letter-spacing:0.05em;margin-bottom:0.5rem">INDUSTRIAL APTITUDE ASSESSMENT</div>
+      <h1 style="font-size:24px;font-weight:500;margin-bottom:0.75rem">Aptitude Test</h1>
+      <p style="color:#666;font-size:14px;line-height:1.7;max-width:480px;margin:0 auto 2rem">20 questions across 4 skill categories. Complete questions in order. Your results and category percentages will appear at the end.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:420px;margin:0 auto 2rem;text-align:left">
+        <div style="padding:14px;border:1px solid #ddd;border-radius:12px;background:#f8f8f8"><div style="font-size:12px;color:#666;margin-bottom:4px">Part 1</div><div style="font-weight:500;font-size:14px">Abstract & Spatial</div><div style="font-size:12px;color:#666">Q1 – Q5</div></div>
+        <div style="padding:14px;border:1px solid #ddd;border-radius:12px;background:#f8f8f8"><div style="font-size:12px;color:#666;margin-bottom:4px">Part 2</div><div style="font-weight:500;font-size:14px">Logic & Systems</div><div style="font-size:12px;color:#666">Q6 – Q10</div></div>
+        <div style="padding:14px;border:1px solid #ddd;border-radius:12px;background:#f8f8f8"><div style="font-size:12px;color:#666;margin-bottom:4px">Part 3</div><div style="font-weight:500;font-size:14px">Quantitative Reasoning</div><div style="font-size:12px;color:#666">Q11 – Q15</div></div>
+        <div style="padding:14px;border:1px solid #ddd;border-radius:12px;background:#f8f8f8"><div style="font-size:12px;color:#666;margin-bottom:4px">Part 4</div><div style="font-weight:500;font-size:14px">Quality & Detail</div><div style="font-size:12px;color:#666">Q16 – Q20</div></div>
+      </div>
+      <div style="max-width:320px;margin:0 auto 1.25rem">
+        <label style="display:block;font-size:13px;color:#666;margin-bottom:6px;text-align:left">Your full name</label>
+        <input id="emp-name" type="text" placeholder="e.g. Jane Smith" style="width:100%;padding:10px 14px;font-size:14px;border:1px solid #ddd;border-radius:8px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        <div id="name-error" style="color:#b91c1c;font-size:12px;margin-top:4px;display:none">Please enter your name before starting.</div>
+      </div>
+      <button class="primary" onclick="startTest()" style="padding:12px 36px;font-size:15px">Begin Test</button>
+    </div>
+  </div>
+
+  <div id="screen-question" style="display:none">
+    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    <div class="q-header">
+      <span class="q-label" id="q-counter">Question 1 of 20</span>
+      <span class="category-badge" id="q-cat"></span>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <div class="visual-box" id="q-visual" style="display:none"></div>
+    <div class="options" id="q-options"></div>
+    <div class="nav-row"><button class="primary" id="btn-next" onclick="nextQ()" disabled>Next</button></div>
+  </div>
+
+  <div id="screen-results" style="display:none">
+    <div class="results">
+      <div style="font-size:13px;color:#666;margin-bottom:0.25rem">Assessment complete</div>
+      <h2>Your Results</h2>
+      <div class="score-big" id="res-total"></div>
+      <div style="font-size:14px;color:#666" id="res-fraction"></div>
+      <div class="cat-grid" id="res-cats"></div>
+      <div class="feedback" id="res-feedback"></div>
+      <button class="primary" onclick="restart()" style="margin-top:1.5rem">Retake Test</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS=[
+{id:1,cat:"Abstract & Spatial",text:"Which shape logically completes the pattern in the final grid square?",visual:"q1",opts:["A single circle","A double triangle","A triple triangle","A triple square"],correct:2},
+{id:2,cat:"Abstract & Spatial",text:"If this flat net is folded into a solid 3D cube, which symbol will sit on the face directly opposite the face with the star?",visual:"q2",opts:["The dot","The wave","The square","The cross"],correct:1},
+{id:3,cat:"Abstract & Spatial",text:"Follow the folding steps, then cut out the corner. What will the piece of paper look like when it is completely unfolded flat again?",visual:"q3",opts:["A square with a single diamond-shaped hole in the center","A square with four triangular holes, one in each corner","A square with two circular holes in the middle","A square with a single triangular hole in the center"],correct:1},
+{id:4,cat:"Abstract & Spatial",text:"To bring the lever into perfect horizontal balance, where must a 20 lb object be placed on the right side of the fulcrum?",visual:"q4",opts:["4 feet from the fulcrum","2 feet from the fulcrum","1 foot from the fulcrum","8 feet from the fulcrum"],correct:1},
+{id:5,cat:"Abstract & Spatial",text:"Which option represents the exact, correct reflection of the shape if viewed in the mirror surface?",visual:"q5",opts:["The shape inverted vertically (flipped upside down)","The shape inverted horizontally (flipped left-to-right)","The shape rotated 180 degrees","The shape remaining unchanged"],correct:1},
+{id:6,cat:"Logic & Systems",text:"Based strictly on the rules below, which statement must be true?\n\nAll widgets are blue. Some blue items are heavy. No heavy items are made of plastic.",visual:null,opts:["All heavy items are widgets.","Some widgets are made of plastic.","No widget is made of plastic.","It is possible that some widgets are not heavy."],correct:3},
+{id:7,cat:"Logic & Systems",text:"If a major bottleneck completely stops all operations at Step C, which subsequent process(es) will be blocked from starting?",visual:"q7",opts:["Step D only","Step E only","Both Step D and Step E","No subsequent steps are blocked"],correct:1},
+{id:8,cat:"Logic & Systems",text:"If the input value X = 9, which final route will it follow?",visual:"q8",opts:["Route 1","Route 2","Route 3","It will loop indefinitely"],correct:2},
+{id:9,cat:"Logic & Systems",text:"Team Alpha is ahead of Team Beta. Team Beta is tied with Team Gamma. Team Delta is ahead of Team Gamma.\n\nWhich team is definitively trailing furthest behind in the standings?",visual:null,opts:["Team Alpha","Team Beta","Team Delta","Cannot be determined"],correct:1},
+{id:10,cat:"Logic & Systems",text:"Gear A spins Counter-Clockwise and meshes with Gear B, which meshes with Gear C, which meshes with Gear D.\n\nWhat is the resulting mechanical behavior of Gear D?",visual:"q10",opts:["It spins Clockwise","It spins Counter-Clockwise","It locks up and cannot move","It spins twice as fast as Gear A"],correct:0},
+{id:11,cat:"Quantitative Reasoning",text:"What number logically follows next in this numerical progression?\n\n2, 6, 12, 20, 30, ___",visual:null,opts:["36","40","42","44"],correct:2},
+{id:12,cat:"Quantitative Reasoning",text:"If the current operational trend continues linearly, what will the error volume be during the 6th hour of the shift?",visual:"q12",opts:["4 errors","2 errors","0 errors","1 error"],correct:1},
+{id:13,cat:"Quantitative Reasoning",text:"A processing bin contains 120 gallons total at a ratio of 3 parts water to 1 part additive.\n\nHow many gallons of the additive formula are in the bin?",visual:null,opts:["30 gallons","40 gallons","60 gallons","90 gallons"],correct:0},
+{id:14,cat:"Quantitative Reasoning",text:"Inlet Pipe A fills at 10 gal/min. Outlet Pipe B drains at 3 gal/min. Both run simultaneously for 10 minutes.\n\nWhat is the net volume gain?",visual:"q14",opts:["100 gallons","70 gallons","30 gallons","130 gallons"],correct:1},
+{id:15,cat:"Quantitative Reasoning",text:"When processing Heavy products, which production line yields the lowest defect rate?",visual:"q15",opts:["Line 1","Line 2","Line 3","Weight class does not alter performance"],correct:1},
+{id:16,cat:"Quality & Detail",text:"Master Batch Code: P-4729-X7-KM-22\n\nWhich option below is an exact character-for-character match?",visual:null,opts:["P-4729-X7-KM-23","P-4792-X7-KM-22","P-4729-X7-KM-22","P-4729-X7-KM-2Z"],correct:2},
+{id:17,cat:"Quality & Detail",text:"The scale marker rests precisely two-fifths of the way between 0.75 and 0.80.\n\nWhat decimal value is the instrument marking?",visual:"q17",opts:["0.76","0.77","0.78","0.79"],correct:1},
+{id:18,cat:"Quality & Detail",text:"Each bracket should have exactly 8 mounting holes and 12 reinforcing ribs. One bracket contains a manufacturing defect.\n\nWhich bracket has the anomaly?",visual:"q18",opts:["Bracket 1","Bracket 2","Bracket 3","Bracket 4"],correct:2},
+{id:19,cat:"Quality & Detail",text:"Manifest Target: Box Count Target = 144 units\n\nStaged Delivery Scans:\nStack 1: 48 units\nStack 2: 52 units\nStack 3: 40 units\n\nComparing the target manifest requirement against the actual physically staged stock totals, what is the current inventory variance status?",visual:null,opts:["Over stock by 4 units","Under stock by 4 units","Exact balance match","Under stock by 12 units"],correct:1},
+{id:20,cat:"Quality & Detail",text:"Each piece must have its alignment notch facing up. Which component is misaligned and requires manual intervention?",visual:"q20",opts:["Piece 1","Piece 2","Piece 3","Piece 4"],correct:2}
+];
+
+const VISUALS={
+q1:`<svg viewBox="0 0 300 315" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">
+<text x="150" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Find the shape that completes the pattern</text>
+<rect x="10" y="20" width="85" height="85" rx="3" fill="#fff" stroke="#bbb" stroke-width="1"/>
+<circle cx="52" cy="62" r="22" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="105" y="20" width="85" height="85" rx="3" fill="#fff" stroke="#bbb" stroke-width="1"/>
+<circle cx="138" cy="62" r="16" fill="none" stroke="#444" stroke-width="2"/>
+<circle cx="160" cy="62" r="16" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="200" y="20" width="85" height="85" rx="3" fill="#fff" stroke="#bbb" stroke-width="1"/>
+<circle cx="220" cy="62" r="11" fill="none" stroke="#444" stroke-width="2"/>
+<circle cx="242" cy="62" r="11" fill="none" stroke="#444" stroke-width="2"/>
+<circle cx="264" cy="62" r="11" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="10" y="115" width="85" height="85" rx="3" fill="#fff" stroke="#bbb" stroke-width="1"/>
+<rect x="29" y="133" width="46" height="46" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="105" y="115" width="85" height="85" rx="3" fill="#fff" stroke="#bbb" stroke-width="1"/>
+<rect x="120" y="136" width="30" height="30" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="155" y="136" width="30" height="30" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="200" y="115" width="85" height="85" rx="3" fill="#fff" stroke="#bbb" stroke-width="1"/>
+<rect x="208" y="134" width="22" height="22" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="233" y="134" width="22" height="22" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="258" y="134" width="22" height="22" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="10" y="210" width="85" height="85" rx="3" fill="#fff" stroke="#bbb" stroke-width="1"/>
+<polygon points="52,222 28,278 76,278" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="105" y="210" width="85" height="85" rx="3" fill="#fff" stroke="#bbb" stroke-width="1"/>
+<polygon points="130,224 116,262 144,262" fill="none" stroke="#444" stroke-width="2"/>
+<polygon points="160,224 146,262 174,262" fill="none" stroke="#444" stroke-width="2"/>
+<rect x="200" y="210" width="85" height="85" rx="3" fill="#f0f0f0" stroke="#aaa" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="242" y="260" text-anchor="middle" font-size="34" fill="#aaa" font-family="sans-serif">?</text>
+</svg>`,
+
+q2:`<svg viewBox="0 0 260 330" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:260px">
+
+<!-- 5-cell cross net, cell size=72, centered in 260px wide canvas -->
+<!-- Center column x=94, left col x=22, right col x=166 -->
+<!-- Rows: r1 y=10, r2 y=82, r3 y=154, r4 y=226 -->
+
+<!-- Face 1 (top): ★ STAR — highlighted gold -->
+<rect x="94" y="10" width="72" height="72" rx="4" fill="#fffaea" stroke="#d4a000" stroke-width="2"/>
+<text x="130" y="58" text-anchor="middle" font-size="36" fill="#d4a000" font-family="sans-serif">★</text>
+
+<!-- Face 2 (row 2 left): ● DOT -->
+<rect x="22" y="82" width="72" height="72" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1.5"/>
+<circle cx="58" cy="118" r="14" fill="#333"/>
+
+<!-- Face 3 (row 2 center): ✦ CROSS -->
+<rect x="94" y="82" width="72" height="72" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1.5"/>
+<text x="130" y="129" text-anchor="middle" font-size="34" fill="#333" font-family="sans-serif">✦</text>
+
+<!-- Face 4 (row 2 right): □ SQUARE -->
+<rect x="166" y="82" width="72" height="72" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1.5"/>
+<rect x="190" y="106" width="24" height="24" fill="none" stroke="#333" stroke-width="2.5"/>
+
+<!-- Face 5 (row 3 center): ∼ WAVE — subtle highlight -->
+<rect x="94" y="154" width="72" height="72" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1.5"/>
+<text x="130" y="202" text-anchor="middle" font-size="30" fill="#333" font-family="sans-serif">∼</text>
+
+<!-- Face 6 (row 4 center): △ TRIANGLE -->
+<rect x="94" y="226" width="72" height="72" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1.5"/>
+<polygon points="130,244 108,284 152,284" fill="none" stroke="#333" stroke-width="2.5"/>
+
+<!-- Legend -->
+<text x="130" y="316" text-anchor="middle" font-size="9" fill="#999" font-family="sans-serif">★ star  ● dot  ∼ wave  □ square  ✦ cross  △ triangle</text>
+</svg>`,
+
+q3:`<svg viewBox="0 0 380 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:380px">
+<defs>
+  <marker id="q3arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#999"/></marker>
+  <!-- Diagonal hatch for cut region -->
+  <pattern id="q3hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="5" stroke="#c0392b" stroke-width="1.5" opacity="0.5"/>
+  </pattern>
+</defs>
+
+<!-- STEP 1: Full square sheet -->
+<rect x="12" y="30" width="68" height="68" rx="3" fill="#deeeff" stroke="#5599cc" stroke-width="1.5"/>
+<text x="46" y="116" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">Step 1</text>
+<text x="46" y="128" text-anchor="middle" font-size="9.5" fill="#777" font-family="sans-serif">Full sheet</text>
+
+<!-- Arrow 1→2 -->
+<line x1="88" y1="64" x2="102" y2="64" stroke="#aaa" stroke-width="1.5" marker-end="url(#q3arr)"/>
+
+<!-- STEP 2: Fold horizontal (bottom half folds up — paper is now half height) -->
+<rect x="106" y="46" width="68" height="34" rx="3" fill="#deeeff" stroke="#5599cc" stroke-width="1.5"/>
+<!-- fold crease line at bottom -->
+<line x1="106" y1="80" x2="174" y2="80" stroke="#5599cc" stroke-width="2" stroke-dasharray="5,3"/>
+<!-- fold arc indicator -->
+<path d="M 120,80 Q 120,72 128,68" fill="none" stroke="#5599cc" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="140" y="116" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">Step 2</text>
+<text x="140" y="128" text-anchor="middle" font-size="9.5" fill="#777" font-family="sans-serif">Fold horizontal</text>
+<text x="140" y="139" text-anchor="middle" font-size="9" fill="#999" font-family="sans-serif">(bottom → top)</text>
+
+<!-- Arrow 2→3 -->
+<line x1="182" y1="64" x2="196" y2="64" stroke="#aaa" stroke-width="1.5" marker-end="url(#q3arr)"/>
+
+<!-- STEP 3: Fold vertical (right half folds left — paper is now quarter size) -->
+<rect x="200" y="46" width="34" height="34" rx="3" fill="#deeeff" stroke="#5599cc" stroke-width="1.5"/>
+<!-- fold crease line on right edge -->
+<line x1="234" y1="46" x2="234" y2="80" stroke="#5599cc" stroke-width="2" stroke-dasharray="5,3"/>
+<path d="M 234,60 Q 226,60 222,56" fill="none" stroke="#5599cc" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="217" y="116" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">Step 3</text>
+<text x="217" y="128" text-anchor="middle" font-size="9.5" fill="#777" font-family="sans-serif">Fold vertical</text>
+<text x="217" y="139" text-anchor="middle" font-size="9" fill="#999" font-family="sans-serif">(right → left)</text>
+
+<!-- Arrow 3→4 -->
+<line x1="243" y1="64" x2="257" y2="64" stroke="#aaa" stroke-width="1.5" marker-end="url(#q3arr)"/>
+
+<!-- STEP 4: Cut corner (top-right corner of the folded square) -->
+<!-- Folded paper (quarter size) -->
+<rect x="261" y="46" width="34" height="34" rx="3" fill="#deeeff" stroke="#5599cc" stroke-width="1.5"/>
+<!-- Cut triangle at top-right corner -->
+<polygon points="295,46 261,46 295,80" fill="url(#q3hatch)" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,2"/>
+<!-- Scissors icon near cut -->
+<text x="302" y="44" font-size="13" fill="#c0392b" font-family="sans-serif">✂</text>
+<text x="295" y="116" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">Step 4</text>
+<text x="295" y="128" text-anchor="middle" font-size="9.5" fill="#777" font-family="sans-serif">Cut corner</text>
+<text x="295" y="139" text-anchor="middle" font-size="9" fill="#999" font-family="sans-serif">(top-right)</text>
+
+<!-- Question prompt -->
+<text x="190" y="168" text-anchor="middle" font-size="10.5" font-weight="500" fill="#444" font-family="sans-serif">When fully unfolded, what does the paper look like?</text>
+</svg>`,
+
+q4:`<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+<text x="160" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Where must the 20 lb weight go to balance the lever?</text>
+<line x1="20" y1="100" x2="300" y2="100" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+<polygon points="160,100 146,134 174,134" fill="#888"/>
+<line x1="160" y1="134" x2="160" y2="155" stroke="#888" stroke-width="3"/>
+<rect x="24" y="70" width="46" height="30" rx="3" fill="#185FA5"/>
+<text x="47" y="90" text-anchor="middle" font-size="13" font-weight="500" fill="white" font-family="sans-serif">10 lb</text>
+<line x1="47" y1="70" x2="47" y2="100" stroke="#185FA5" stroke-width="1" stroke-dasharray="3,2"/>
+<line x1="47" y1="114" x2="160" y2="114" stroke="#555" stroke-width="0.8"/>
+<line x1="47" y1="110" x2="47" y2="118" stroke="#555" stroke-width="0.8"/>
+<line x1="160" y1="110" x2="160" y2="118" stroke="#555" stroke-width="0.8"/>
+<text x="103" y="130" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">4 ft</text>
+<rect x="236" y="64" width="54" height="30" rx="3" fill="none" stroke="#993C1D" stroke-width="1.5" stroke-dasharray="5,3"/>
+<text x="263" y="84" text-anchor="middle" font-size="13" fill="#993C1D" font-family="sans-serif">20 lb</text>
+<line x1="160" y1="114" x2="263" y2="114" stroke="#993C1D" stroke-width="0.8" stroke-dasharray="3,2"/>
+<text x="211" y="130" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">? ft</text>
+<text x="160" y="162" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Fulcrum (pivot point) is at the center</text>
+</svg>`,
+
+q5:`<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">
+<text x="150" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">What does this shape look like reflected in the mirror?</text>
+<polygon points="58,30 98,30 108,62 88,82 48,82 38,62" fill="#ddeeff" stroke="#444" stroke-width="1.5"/>
+<polygon points="68,50 78,40 93,55 83,70" fill="#b5d4f4" stroke="#444" stroke-width="1"/>
+<text x="73" y="100" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Original shape</text>
+<line x1="128" y1="22" x2="128" y2="96" stroke="#999" stroke-width="2" stroke-dasharray="6,4"/>
+<text x="128" y="112" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">mirror line</text>
+<rect x="134" y="24" width="90" height="68" rx="2" fill="#f0f0f0" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,3"/>
+<text x="179" y="62" text-anchor="middle" font-size="11" fill="#bbb" font-family="sans-serif">reflection</text>
+<text x="179" y="76" text-anchor="middle" font-size="10" fill="#bbb" font-family="sans-serif">goes here</text>
+<text x="150" y="148" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Choose which option correctly mirrors the original</text>
+</svg>`,
+
+q7:`<svg viewBox="0 0 460 230" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:460px">
+<defs>
+  <marker id="q7g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#666"/></marker>
+  <marker id="q7r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#b91c1c"/></marker>
+  <marker id="q7gr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#15803d"/></marker>
+</defs>
+
+<!-- ── TOP LANE: A → B → C (→ blocked) ── -->
+
+<!-- Step A -->
+<rect x="14" y="28" width="54" height="38" rx="8" fill="#f0f6ff" stroke="#4a80c4" stroke-width="1.8"/>
+<text x="41" y="52" text-anchor="middle" font-size="17" font-weight="700" fill="#1e3a6e" font-family="sans-serif">A</text>
+
+<!-- A → B -->
+<line x1="68" y1="47" x2="100" y2="47" stroke="#666" stroke-width="1.8" marker-end="url(#q7g)"/>
+
+<!-- Step B -->
+<rect x="102" y="28" width="54" height="38" rx="8" fill="#f0f6ff" stroke="#4a80c4" stroke-width="1.8"/>
+<text x="129" y="52" text-anchor="middle" font-size="17" font-weight="700" fill="#1e3a6e" font-family="sans-serif">B</text>
+
+<!-- B → C -->
+<line x1="156" y1="47" x2="188" y2="47" stroke="#666" stroke-width="1.8" marker-end="url(#q7g)"/>
+
+<!-- Step C — STOPPED -->
+<rect x="190" y="22" width="66" height="50" rx="8" fill="#fef2f2" stroke="#b91c1c" stroke-width="2.2"/>
+<text x="223" y="45" text-anchor="middle" font-size="17" font-weight="700" fill="#b91c1c" font-family="sans-serif">C</text>
+<text x="223" y="62" text-anchor="middle" font-size="8.5" font-weight="700" fill="#b91c1c" font-family="sans-serif" letter-spacing="0.5">⛔ STOPPED</text>
+
+<!-- C → E (blocked — red dashed) -->
+<line x1="356" y1="47" x2="380" y2="47" stroke="#b91c1c" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#q7r)"/>
+
+<!-- ── BOTTOM LANE: A → D (bypass) ── -->
+
+<!-- A splits down -->
+<line x1="41" y1="66" x2="41" y2="105" stroke="#15803d" stroke-width="1.5"/>
+<line x1="41" y1="105" x2="102" y2="105" stroke="#15803d" stroke-width="1.5" marker-end="url(#q7gr)"/>
+
+<!-- Step D -->
+<rect x="102" y="86" width="54" height="38" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.8"/>
+<text x="129" y="110" text-anchor="middle" font-size="17" font-weight="700" fill="#14532d" font-family="sans-serif">D</text>
+
+<!-- D → E -->
+<line x1="156" y1="105" x2="390" y2="105" stroke="#15803d" stroke-width="1.5"/>
+<line x1="390" y1="105" x2="390" y2="66" stroke="#15803d" stroke-width="1.5" marker-end="url(#q7gr)"/>
+
+<!-- Step E -->
+<rect x="382" y="28" width="54" height="38" rx="8" fill="#f8f8f8" stroke="#aaa" stroke-width="1.8"/>
+<text x="409" y="52" text-anchor="middle" font-size="17" font-weight="700" fill="#555" font-family="sans-serif">E</text>
+
+<!-- "needs C + D" label -->
+<text x="409" y="74" text-anchor="middle" font-size="8" fill="#999" font-family="sans-serif">needs C + D</text>
+
+<!-- Bypass label -->
+<text x="129" y="82" text-anchor="middle" font-size="8.5" fill="#15803d" font-family="sans-serif">bypass route</text>
+
+<!-- ── DEPENDENCY RULES BOX ── -->
+<rect x="10" y="130" width="440" height="90" rx="8" fill="#fafaf7" stroke="#ddd" stroke-width="1.2"/>
+<text x="230" y="148" text-anchor="middle" font-size="9.5" font-weight="700" fill="#555" font-family="sans-serif" letter-spacing="1">DEPENDENCY RULES</text>
+<text x="22" y="163" font-size="9" fill="#444" font-family="sans-serif">•  Step B cannot begin until Step A is completed.</text>
+<text x="22" y="177" font-size="9" fill="#444" font-family="sans-serif">•  Step C requires Step B to be completed first.</text>
+<text x="22" y="191" font-size="9" fill="#15803d" font-family="sans-serif">•  Step D requires only Step A — it can bypass Steps B and C.</text>
+<text x="22" y="205" font-size="9" fill="#444" font-family="sans-serif">•  Step E requires both Step C AND Step D to be fully completed.</text>
+</svg>`,
+
+q8:`<svg viewBox="0 0 310 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:310px">
+<text x="155" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Trace the flowchart for X = 9</text>
+<defs><marker id="fa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#888"/></marker></defs>
+<rect x="105" y="22" width="100" height="28" rx="14" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<text x="155" y="41" text-anchor="middle" font-size="12" fill="#333" font-family="sans-serif">Input: X = 9</text>
+<line x1="155" y1="50" x2="155" y2="66" stroke="#888" stroke-width="1.5" marker-end="url(#fa)"/>
+<polygon points="155,68 102,92 155,116 208,92" fill="#fff" stroke="#888" stroke-width="1"/>
+<text x="155" y="88" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Is X even?</text>
+<text x="155" y="103" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Check 1</text>
+<line x1="208" y1="92" x2="258" y2="92" stroke="#888" stroke-width="1.5" marker-end="url(#fa)"/>
+<text x="233" y="87" font-size="10" fill="#555" font-family="sans-serif">Yes</text>
+<rect x="258" y="78" width="50" height="28" rx="6" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<text x="283" y="97" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Route 1</text>
+<line x1="155" y1="116" x2="155" y2="132" stroke="#888" stroke-width="1.5" marker-end="url(#fa)"/>
+<text x="161" y="128" font-size="10" fill="#555" font-family="sans-serif">No</text>
+<polygon points="155,134 102,158 155,182 208,158" fill="#fff" stroke="#888" stroke-width="1"/>
+<text x="155" y="154" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Is X &gt; 15?</text>
+<text x="155" y="169" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Check 2</text>
+<line x1="208" y1="158" x2="258" y2="158" stroke="#888" stroke-width="1.5" marker-end="url(#fa)"/>
+<text x="233" y="153" font-size="10" fill="#555" font-family="sans-serif">Yes</text>
+<rect x="258" y="144" width="50" height="28" rx="6" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<text x="283" y="163" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Route 2</text>
+<line x1="155" y1="182" x2="155" y2="198" stroke="#888" stroke-width="1.5" marker-end="url(#fa)"/>
+<text x="161" y="194" font-size="10" fill="#555" font-family="sans-serif">No</text>
+<rect x="108" y="200" width="94" height="18" rx="9" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<text x="155" y="213" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Route 3</text>
+</svg>`,
+
+q10:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">
+<text x="150" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Gear A starts Counter-Clockwise (↺). What direction does Gear D spin?</text>
+<circle cx="52" cy="110" r="38" fill="#f0f0f0" stroke="#bbb" stroke-width="2"/>
+<text x="52" y="106" text-anchor="middle" font-size="12" fill="#333" font-family="sans-serif">Gear A</text>
+<text x="52" y="124" text-anchor="middle" font-size="16" fill="#333" font-family="sans-serif">↺</text>
+<circle cx="132" cy="110" r="30" fill="#f0f0f0" stroke="#bbb" stroke-width="1.5"/>
+<text x="132" y="106" text-anchor="middle" font-size="12" fill="#333" font-family="sans-serif">Gear B</text>
+<text x="132" y="122" text-anchor="middle" font-size="14" fill="#888" font-family="sans-serif">?</text>
+<circle cx="200" cy="110" r="22" fill="#f0f0f0" stroke="#bbb" stroke-width="1.5"/>
+<text x="200" y="107" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Gear C</text>
+<text x="200" y="121" text-anchor="middle" font-size="14" fill="#888" font-family="sans-serif">?</text>
+<circle cx="256" cy="110" r="18" fill="#f0f0f0" stroke="#bbb" stroke-width="1.5"/>
+<text x="256" y="107" text-anchor="middle" font-size="10" fill="#333" font-family="sans-serif">Gear D</text>
+<text x="256" y="121" text-anchor="middle" font-size="14" fill="#888" font-family="sans-serif">?</text>
+<text x="150" y="165" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Each gear meshes with the next — meshing reverses direction</text>
+</svg>`,
+
+q12:`<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">
+<text x="150" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Errors per hour — if the trend continues, what is Hour 6?</text>
+<line x1="44" y1="158" x2="286" y2="158" stroke="#ccc" stroke-width="1"/>
+<line x1="44" y1="16" x2="44" y2="158" stroke="#ccc" stroke-width="1"/>
+<text x="39" y="20" text-anchor="end" font-size="9" fill="#666" font-family="sans-serif">12</text>
+<text x="39" y="44" text-anchor="end" font-size="9" fill="#666" font-family="sans-serif">10</text>
+<text x="39" y="68" text-anchor="end" font-size="9" fill="#666" font-family="sans-serif">8</text>
+<text x="39" y="92" text-anchor="end" font-size="9" fill="#666" font-family="sans-serif">6</text>
+<text x="39" y="116" text-anchor="end" font-size="9" fill="#666" font-family="sans-serif">4</text>
+<text x="39" y="140" text-anchor="end" font-size="9" fill="#666" font-family="sans-serif">2</text>
+<rect x="54" y="16" width="28" height="142" rx="2" fill="#185FA5"/>
+<text x="68" y="175" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">Hr 1</text>
+<rect x="94" y="40" width="28" height="118" rx="2" fill="#185FA5"/>
+<text x="108" y="175" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">Hr 2</text>
+<rect x="134" y="64" width="28" height="94" rx="2" fill="#185FA5"/>
+<text x="148" y="175" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">Hr 3</text>
+<rect x="174" y="88" width="28" height="70" rx="2" fill="#185FA5"/>
+<text x="188" y="175" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">Hr 4</text>
+<rect x="214" y="16" width="28" height="142" rx="2" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="228" y="175" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">Hr 5</text>
+<text x="228" y="95" text-anchor="middle" font-size="13" fill="#aaa" font-family="sans-serif">?</text>
+<rect x="254" y="16" width="28" height="142" rx="2" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="268" y="175" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">Hr 6</text>
+<text x="268" y="95" text-anchor="middle" font-size="13" fill="#aaa" font-family="sans-serif">?</text>
+</svg>`,
+
+q14:`<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">
+<text x="150" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Both pipes run simultaneously for 10 minutes. Net volume gain?</text>
+<rect x="90" y="36" width="120" height="136" rx="4" fill="#f0f0f0" stroke="#bbb" stroke-width="1.5"/>
+<text x="150" y="112" text-anchor="middle" font-size="14" fill="#666" font-family="sans-serif">Storage</text>
+<text x="150" y="130" text-anchor="middle" font-size="14" fill="#666" font-family="sans-serif">Tank</text>
+<defs>
+<marker id="ain" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3B6D11"/></marker>
+<marker id="aout" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 Z" fill="#A32D2D"/></marker>
+</defs>
+<line x1="14" y1="62" x2="88" y2="62" stroke="#3B6D11" stroke-width="3" marker-end="url(#ain)"/>
+<rect x="8" y="44" width="54" height="36" rx="3" fill="#dff0d0" stroke="#3B6D11" stroke-width="1"/>
+<text x="35" y="60" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A" font-family="sans-serif">Pipe A</text>
+<text x="35" y="74" text-anchor="middle" font-size="10" fill="#3B6D11" font-family="sans-serif">+10 gal/min</text>
+<line x1="210" y1="142" x2="276" y2="142" stroke="#A32D2D" stroke-width="3" marker-end="url(#aout)"/>
+<rect x="238" y="124" width="54" height="36" rx="3" fill="#ffecec" stroke="#A32D2D" stroke-width="1"/>
+<text x="265" y="140" text-anchor="middle" font-size="11" font-weight="500" fill="#791F1F" font-family="sans-serif">Pipe B</text>
+<text x="265" y="154" text-anchor="middle" font-size="10" fill="#A32D2D" font-family="sans-serif">−3 gal/min</text>
+</svg>`,
+
+q15:`<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">
+<text x="150" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Defect rate (%) by production line and product weight class</text>
+<rect x="88" y="24" width="64" height="24" rx="3" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<text x="120" y="40" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Light</text>
+<rect x="156" y="24" width="64" height="24" rx="3" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<text x="188" y="40" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Medium</text>
+<rect x="224" y="24" width="64" height="24" rx="3" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<text x="256" y="40" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Heavy</text>
+<text x="44" y="68" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Line 1</text>
+<rect x="88" y="52" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="120" y="71" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">2.1%</text>
+<rect x="156" y="52" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="188" y="71" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">4.7%</text>
+<rect x="224" y="52" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="256" y="71" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">6.3%</text>
+<text x="44" y="108" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Line 2</text>
+<rect x="88" y="92" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="120" y="111" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">3.8%</text>
+<rect x="156" y="92" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="188" y="111" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">2.9%</text>
+<rect x="224" y="92" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="256" y="111" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">1.8%</text>
+<text x="44" y="148" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">Line 3</text>
+<rect x="88" y="132" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="120" y="151" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">1.5%</text>
+<rect x="156" y="132" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="188" y="151" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">3.1%</text>
+<rect x="224" y="132" width="64" height="28" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+<text x="256" y="151" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif">8.2%</text>
+</svg>`,
+
+q17:`<svg viewBox="0 0 300 70" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px">
+<rect x="30" y="10" width="240" height="36" rx="4" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<line x1="30" y1="16" x2="30" y2="40" stroke="#bbb" stroke-width="1.5"/>
+<line x1="270" y1="16" x2="270" y2="40" stroke="#bbb" stroke-width="1.5"/>
+<line x1="78" y1="18" x2="78" y2="38" stroke="#bbb" stroke-width="1"/>
+<line x1="126" y1="18" x2="126" y2="38" stroke="#bbb" stroke-width="1"/>
+<line x1="174" y1="18" x2="174" y2="38" stroke="#bbb" stroke-width="1"/>
+<line x1="222" y1="18" x2="222" y2="38" stroke="#bbb" stroke-width="1"/>
+<text x="30" y="58" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">0.75</text>
+<text x="78" y="58" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">0.76</text>
+<text x="126" y="58" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">0.77</text>
+<text x="174" y="58" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">0.78</text>
+<text x="222" y="58" text-anchor="middle" font-size="9" fill="#666" font-family="sans-serif">0.79</text>
+<text x="270" y="58" text-anchor="middle" font-size="11" fill="#333" font-family="sans-serif">0.80</text>
+</svg>`,
+
+q18:`<svg viewBox="0 0 360 178" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px">
+<text x="180" y="14" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">Each bracket needs exactly 8 holes and 12 ribs. Find the defect.</text>
+<g transform="translate(6,22)">
+<rect x="0" y="0" width="72" height="130" rx="3" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<rect x="9" y="9" width="54" height="112" rx="2" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+<circle cx="18" cy="22" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="22" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="40" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="40" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="58" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="58" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="76" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="76" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<line x1="36" y1="11" x2="36" y2="18" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="21" x2="36" y2="28" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="31" x2="36" y2="38" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="41" x2="36" y2="48" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="51" x2="36" y2="58" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="61" x2="36" y2="68" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="71" x2="36" y2="78" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="81" x2="36" y2="88" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="91" x2="36" y2="98" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="98" x2="59" y2="98" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="107" x2="59" y2="107" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="116" x2="59" y2="116" stroke="#888" stroke-width="1.2"/>
+<text x="36" y="146" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Bracket 1</text>
+</g>
+<g transform="translate(96,22)">
+<rect x="0" y="0" width="72" height="130" rx="3" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<rect x="9" y="9" width="54" height="112" rx="2" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+<circle cx="18" cy="22" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="22" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="40" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="40" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="58" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="58" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="76" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="76" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<line x1="36" y1="11" x2="36" y2="18" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="21" x2="36" y2="28" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="31" x2="36" y2="38" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="41" x2="36" y2="48" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="51" x2="36" y2="58" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="61" x2="36" y2="68" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="71" x2="36" y2="78" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="81" x2="36" y2="88" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="91" x2="36" y2="98" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="98" x2="59" y2="98" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="107" x2="59" y2="107" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="116" x2="59" y2="116" stroke="#888" stroke-width="1.2"/>
+<text x="36" y="146" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Bracket 2</text>
+</g>
+<g transform="translate(186,22)">
+<rect x="0" y="0" width="72" height="130" rx="3" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<rect x="9" y="9" width="54" height="112" rx="2" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+<circle cx="18" cy="22" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="22" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="40" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="40" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="58" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="58" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="76" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<line x1="36" y1="11" x2="36" y2="18" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="21" x2="36" y2="28" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="31" x2="36" y2="38" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="41" x2="36" y2="48" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="51" x2="36" y2="58" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="61" x2="36" y2="68" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="71" x2="36" y2="78" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="81" x2="36" y2="88" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="91" x2="36" y2="98" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="98" x2="59" y2="98" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="107" x2="59" y2="107" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="116" x2="59" y2="116" stroke="#888" stroke-width="1.2"/>
+<text x="36" y="146" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Bracket 3</text>
+</g>
+<g transform="translate(276,22)">
+<rect x="0" y="0" width="72" height="130" rx="3" fill="#f0f0f0" stroke="#bbb" stroke-width="1"/>
+<rect x="9" y="9" width="54" height="112" rx="2" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+<circle cx="18" cy="22" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="22" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="40" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="40" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="58" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="58" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="18" cy="76" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<circle cx="54" cy="76" r="4.5" fill="none" stroke="#444" stroke-width="1.5"/>
+<line x1="36" y1="11" x2="36" y2="18" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="21" x2="36" y2="28" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="31" x2="36" y2="38" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="41" x2="36" y2="48" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="51" x2="36" y2="58" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="61" x2="36" y2="68" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="71" x2="36" y2="78" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="81" x2="36" y2="88" stroke="#888" stroke-width="1.2"/>
+<line x1="36" y1="91" x2="36" y2="98" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="98" x2="59" y2="98" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="107" x2="59" y2="107" stroke="#888" stroke-width="1.2"/>
+<line x1="13" y1="116" x2="59" y2="116" stroke="#888" stroke-width="1.2"/>
+<text x="36" y="146" text-anchor="middle" font-size="10" fill="#666" font-family="sans-serif">Bracket 4</text>
+</g>
+</svg>`,
+
+q20:`<svg viewBox="0 0 380 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:380px">
+
+<!-- Instruction label -->
+<text x="190" y="14" text-anchor="middle" font-size="10.5" fill="#555" font-family="sans-serif">Notch must face UP ↑ on every piece. Which is misaligned?</text>
+
+<!-- Conveyor belt — sits below pieces, no overlap -->
+<rect x="10" y="118" width="360" height="16" rx="4" fill="#d0d0d0" stroke="#aaa" stroke-width="1"/>
+<text x="190" y="130" text-anchor="middle" font-size="8.5" fill="#888" font-family="sans-serif">conveyor belt</text>
+
+<!-- PIECE 1 — notch on top (correct) -->
+<g transform="translate(22, 30)">
+  <!-- notch tab on top -->
+  <rect x="24" y="-14" width="18" height="14" rx="3" fill="#4a80c4"/>
+  <!-- body -->
+  <rect x="0" y="0" width="66" height="56" rx="6" fill="#f0f4fa" stroke="#4a80c4" stroke-width="1.8"/>
+  <!-- notch arrow hint inside -->
+  <text x="33" y="36" text-anchor="middle" font-size="18" fill="#4a80c4" font-family="sans-serif">↑</text>
+  <text x="33" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">Piece 1</text>
+</g>
+
+<!-- PIECE 2 — notch on top (correct) -->
+<g transform="translate(108, 30)">
+  <rect x="24" y="-14" width="18" height="14" rx="3" fill="#4a80c4"/>
+  <rect x="0" y="0" width="66" height="56" rx="6" fill="#f0f4fa" stroke="#4a80c4" stroke-width="1.8"/>
+  <text x="33" y="36" text-anchor="middle" font-size="18" fill="#4a80c4" font-family="sans-serif">↑</text>
+  <text x="33" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">Piece 2</text>
+</g>
+
+<!-- PIECE 3 — notch on RIGHT side (WRONG — misaligned) -->
+<g transform="translate(194, 30)">
+  <!-- notch tab on right side -->
+  <rect x="66" y="20" width="14" height="18" rx="3" fill="#b91c1c"/>
+  <!-- body — red highlight -->
+  <rect x="0" y="0" width="66" height="56" rx="6" fill="#fff0f0" stroke="#b91c1c" stroke-width="2.2"/>
+  <!-- wrong arrow pointing right -->
+  <text x="33" y="36" text-anchor="middle" font-size="18" fill="#b91c1c" font-family="sans-serif">→</text>
+  <text x="33" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">Piece 3</text>
+</g>
+
+<!-- PIECE 4 — notch on top (correct) -->
+<g transform="translate(280, 30)">
+  <rect x="24" y="-14" width="18" height="14" rx="3" fill="#4a80c4"/>
+  <rect x="0" y="0" width="66" height="56" rx="6" fill="#f0f4fa" stroke="#4a80c4" stroke-width="1.8"/>
+  <text x="33" y="36" text-anchor="middle" font-size="18" fill="#4a80c4" font-family="sans-serif">↑</text>
+  <text x="33" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">Piece 4</text>
+</g>
+
+</svg>`
+};
+
+const CATS=["Abstract & Spatial","Logic & Systems","Quantitative Reasoning","Quality & Detail"];
+const CAT_COLORS={"Abstract & Spatial":"#185FA5","Logic & Systems":"#0F6E56","Quantitative Reasoning":"#854F0B","Quality & Detail":"#993556"};
+let current=0,answers=[];
+
+function startTest(){
+  const name=document.getElementById('emp-name').value.trim();
+  if(!name){document.getElementById('name-error').style.display='block';return;}
+  document.getElementById('name-error').style.display='none';
+  document.getElementById('screen-intro').style.display='none';
+  document.getElementById('screen-question').style.display='block';
+  renderQ();
+}
+function renderQ(){
+  const q=QUESTIONS[current];
+  document.getElementById('prog').style.width=((current/20)*100)+'%';
+  document.getElementById('q-counter').textContent='Question '+(current+1)+' of 20';
+  document.getElementById('q-cat').textContent=q.cat;
+  document.getElementById('q-text').textContent=q.text;
+  const vb=document.getElementById('q-visual');
+  if(q.visual&&VISUALS[q.visual]){vb.style.display='flex';vb.innerHTML=VISUALS[q.visual];}
+  else{vb.style.display='none';vb.innerHTML='';}
+  const ob=document.getElementById('q-options');
+  const letters=['A','B','C','D'];
+  ob.innerHTML=q.opts.map((o,i)=>`<button class="opt" onclick="selectOpt(${i})" id="opt${i}"><span class="opt-letter" id="letter${i}">${letters[i]}</span><span>${o}</span></button>`).join('');
+  document.getElementById('btn-next').disabled=true;
+  document.getElementById('btn-next').textContent=current===19?'See Results':'Next';
+}
+function selectOpt(i){
+  document.querySelectorAll('.opt').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('opt'+i).classList.add('selected');
+  answers[current]=i;
+  document.getElementById('btn-next').disabled=false;
+}
+function nextQ(){
+  if(answers[current]===undefined)return;
+  current++;
+  if(current>=20){showResults();return;}
+  renderQ();
+}
+function showResults(){
+  document.getElementById('screen-question').style.display='none';
+  document.getElementById('screen-results').style.display='block';
+  let total=0;
+  const catScores={};
+  CATS.forEach(c=>catScores[c]={right:0,total:0});
+  QUESTIONS.forEach((q,i)=>{catScores[q.cat].total++;if(answers[i]===q.correct){total++;catScores[q.cat].right++;}});
+  const pct=Math.round((total/20)*100);
+  document.getElementById('res-total').textContent=pct+'%';
+  document.getElementById('res-fraction').textContent=total+' out of 20 correct';
+  document.getElementById('prog').style.width='100%';
+  const catHtml=CATS.map(c=>{const s=catScores[c];const p=Math.round((s.right/s.total)*100);const col=CAT_COLORS[c];return`<div class="cat-card"><div class="cat-name">${c}</div><div class="cat-score" style="color:${col}">${p}%</div><div style="font-size:12px;color:#666;margin-bottom:6px">${s.right}/${s.total} correct</div><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${p}%;background:${col}"></div></div></div>`;}).join('');
+  document.getElementById('res-cats').innerHTML=catHtml;
+  document.getElementById('res-feedback').innerHTML=buildFeedback(pct,catScores);
+  // --- Send results to Google Apps Script ---
+  const empName=document.getElementById('emp-name').value.trim()||'Unknown';
+  const payload={
+    name:empName,
+    score:pct+'%',
+    fraction:total+' / 20',
+    abstract:Math.round(catScores['Abstract & Spatial'].right/catScores['Abstract & Spatial'].total*100)+'%',
+    logic:Math.round(catScores['Logic & Systems'].right/catScores['Logic & Systems'].total*100)+'%',
+    quantitative:Math.round(catScores['Quantitative Reasoning'].right/catScores['Quantitative Reasoning'].total*100)+'%',
+    quality:Math.round(catScores['Quality & Detail'].right/catScores['Quality & Detail'].total*100)+'%'
+  };
+  fetch('https://script.google.com/macros/s/AKfycbyfQbjO-h4fJGb4sbUlkZX5AX4HrA1JoDDK1boelLVHMoa2ajdMpJbd8L6O8ri1f75g/exec',{method:'POST',body:JSON.stringify(payload)})
+    .catch(()=>{}); // silent fail — results still show even if send fails
+}
+function buildFeedback(pct,cs){
+  let str='<strong style="font-size:13px">Performance summary:</strong><br>';
+  const best=CATS.reduce((a,b)=>cs[a].right/cs[a].total>=cs[b].right/cs[b].total?a:b);
+  const worst=CATS.reduce((a,b)=>cs[a].right/cs[a].total<=cs[b].right/cs[b].total?a:b);
+  str+=`Strongest area: <strong>${best}</strong> (${Math.round(cs[best].right/cs[best].total*100)}%). `;
+  str+=`Area for development: <strong>${worst}</strong> (${Math.round(cs[worst].right/cs[worst].total*100)}%). `;
+  if(pct>=85)str+='Excellent overall performance.';
+  else if(pct>=70)str+='Good solid performance with room to develop.';
+  else if(pct>=50)str+='Moderate performance — targeted practice in weaker areas recommended.';
+  else str+='Foundational work recommended across multiple aptitude areas.';
+  return str;
+}
+function restart(){
+  current=0;answers=[];
+  document.getElementById('emp-name').value='';
+  document.getElementById('screen-results').style.display='none';
+  document.getElementById('screen-intro').style.display='block';
+  document.getElementById('prog').style.width='0%';
+}
+</script>
